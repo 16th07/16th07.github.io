@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8" />
+  <title>Game Tài Xỉu - Đăng nhập</title>
+  <style>
+    body {
+      font-family: Arial;
+      text-align: center;
+      background: #f2f2f2;
+      padding: 40px;
+    }
+    h1 {
+      color: #333;
+    }
+    input, button {
+      padding: 10px;
+      margin: 10px;
+      font-size: 16px;
+    }
+    .hidden {
+      display: none;
+    }
+    .game-area {
+      margin-top: 30px;
+    }
+    table {
+      margin: 0 auto;
+      border-collapse: collapse;
+      width: 90%;
+      max-width: 600px;
+      background: #fff;
+    }
+    th, td {
+      border: 1px solid #ccc;
+      padding: 8px;
+    }
+    th {
+      background: #eee;
+    }
+  </style>
+</head>
+<body>
+  <h1>Game Tài Xỉu</h1>
+
+  <!-- Đăng ký / Đăng nhập -->
+  <div id="auth">
+    <h3>Đăng ký / Đăng nhập</h3>
+    <input type="text" id="username" placeholder="Tên đăng nhập" /><br />
+    <input type="password" id="password" placeholder="Mật khẩu" /><br />
+    <button onclick="register()">Tạo tài khoản</button>
+    <button onclick="login()">Đăng nhập</button>
+    <div id="authMessage"></div>
+  </div>
+
+  <!-- Khu vực chơi game -->
+  <div id="game" class="hidden game-area">
+    <h2>Xin chào, <span id="displayName"></span>!</h2>
+    <div class="balance" id="balance">Số dư: 0</div>
+
+    <select id="betChoice">
+      <option value="Tài">Tài</option>
+      <option value="Xỉu">Xỉu</option>
+    </select>
+    <input type="number" id="betAmount" value="100" min="1" />
+    <button onclick="playGame()">Lắc Xí Ngầu</button>
+
+    <div class="dice" id="dice">🎲🎲🎲</div>
+    <div id="result">Kết quả sẽ hiện ở đây...</div>
+
+    <h3>Lịch sử:</h3>
+    <table id="historyTable">
+      <tr>
+        <th>Ván</th>
+        <th>Chọn</th>
+        <th>Tổng</th>
+        <th>Kết quả</th>
+        <th>Thắng/Thua</th>
+      </tr>
+    </table>
+  </div>
+
+  <script>
+    let currentUser = null;
+    let round = 1;
+
+    function register() {
+      const user = document.getElementById("username").value;
+      const pass = document.getElementById("password").value;
+      if (!user || !pass) {
+        alert("Vui lòng nhập đầy đủ thông tin!");
+        return;
+      }
+
+      const users = JSON.parse(localStorage.getItem("users") || "{}");
+      if (users[user]) {
+        document.getElementById("authMessage").innerText = "Tài khoản đã tồn tại!";
+        return;
+      }
+
+      users[user] = { password: pass, balance: 1000, history: [] };
+      localStorage.setItem("users", JSON.stringify(users));
+      document.getElementById("authMessage").innerText = "Tạo tài khoản thành công! Đăng nhập để chơi.";
+    }
+
+    function login() {
+      const user = document.getElementById("username").value;
+      const pass = document.getElementById("password").value;
+
+      const users = JSON.parse(localStorage.getItem("users") || "{}");
+      if (!users[user] || users[user].password !== pass) {
+        document.getElementById("authMessage").innerText = "Sai tài khoản hoặc mật khẩu!";
+        return;
+      }
+
+      currentUser = user;
+      document.getElementById("auth").classList.add("hidden");
+      document.getElementById("game").classList.remove("hidden");
+      document.getElementById("displayName").innerText = currentUser;
+      updateBalance();
+      loadHistory();
+    }
+
+    function updateBalance() {
+      const users = JSON.parse(localStorage.getItem("users"));
+      const balance = users[currentUser].balance;
+      document.getElementById("balance").innerText = "Số dư: " + balance;
+    }
+
+    function playGame() {
+      const users = JSON.parse(localStorage.getItem("users"));
+      const userData = users[currentUser];
+
+      const betChoice = document.getElementById("betChoice").value;
+      const betAmount = parseInt(document.getElementById("betAmount").value);
+
+      if (betAmount > userData.balance || betAmount <= 0) {
+        alert("Số tiền cược không hợp lệ!");
+        return;
+      }
+
+      const dice1 = Math.floor(Math.random() * 6) + 1;
+      const dice2 = Math.floor(Math.random() * 6) + 1;
+      const dice3 = Math.floor(Math.random() * 6) + 1;
+      const total = dice1 + dice2 + dice3;
+      const emoji = ["⚀", "⚁", "⚂", "⚃", "⚄", "⚅"];
+
+      document.getElementById("dice").innerText =
+        emoji[dice1 - 1] + emoji[dice2 - 1] + emoji[dice3 - 1];
+
+      let result = "";
+      if (dice1 === dice2 && dice2 === dice3) {
+        result = "Bộ ba";
+      } else if (total >= 4 && total <= 10) {
+        result = "Xỉu";
+      } else {
+        result = "Tài";
+      }
+
+      let win = result === betChoice;
+      if (win) {
+        userData.balance += betAmount;
+      } else {
+        userData.balance -= betAmount;
+      }
+
+      // Lưu lịch sử
+      userData.history.push({
+        round: round,
+        bet: betChoice,
+        total: total,
+        result: result,
+        change: win ? "+" + betAmount : "-" + betAmount,
+      });
+
+      localStorage.setItem("users", JSON.stringify(users));
+      updateBalance();
+      addHistoryRow(round, betChoice, total, result, win ? "+" + betAmount : "-" + betAmount);
+      document.getElementById("result").innerText =
+        `Tổng: ${total} - ${result} => ${win ? "Thắng!" : "Thua!"}`;
+      round++;
+    }
+
+    function loadHistory() {
+      const users = JSON.parse(localStorage.getItem("users"));
+      const history = users[currentUser].history || [];
+
+      const table = document.getElementById("historyTable");
+      // Xóa lịch sử cũ
+      while (table.rows.length > 1) table.deleteRow(1);
+
+      history.forEach(h => {
+        addHistoryRow(h.round, h.bet, h.total, h.result, h.change);
+        round = h.round + 1;
+      });
+    }
+
+    function addHistoryRow(r, b, t, rs, ch) {
+      const table = document.getElementById("historyTable");
+      const row = table.insertRow();
+      row.innerHTML = `<td>${r}</td><td>${b}</td><td>${t}</td><td>${rs}</td><td>${ch}</td>`;
+    }
+  </script>
+</body>
+</html>
