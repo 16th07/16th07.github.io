@@ -1,0 +1,316 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <title>🔮 SUNWIN ULTIMATE PREDICTOR - VIP TOOL</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Share+Tech+Mono&display=swap');
+        
+        :root {
+            --neon-red: #ff073a;
+            --neon-blue: #00f3ff;
+            --hacker-bg: #000;
+        }
+
+        body {
+            font-family: 'Share Tech Mono', monospace;
+            background: var(--hacker-bg);
+            color: var(--neon-red);
+            margin: 0;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .cyber-overlay {
+            position: fixed;
+            width: 100%;
+            height: 100%;
+            background: 
+                linear-gradient(0deg, rgba(255,7,58,0.1) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(255,7,58,0.1) 1px, transparent 1px);
+            background-size: 20px 20px;
+            pointer-events: none;
+            z-index: 9999;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 50px auto;
+            padding: 30px;
+            border: 3px solid var(--neon-red);
+            box-shadow: 0 0 50px rgba(255,7,58,0.3);
+            background: rgba(0,0,0,0.9);
+            position: relative;
+        }
+
+        .title-box {
+            text-align: center;
+            padding: 20px;
+            border: 2px solid var(--neon-blue);
+            margin-bottom: 30px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .title-box::before {
+            content: "";
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: linear-gradient(45deg, transparent, var(--neon-blue), transparent);
+            animation: shine 3s infinite;
+        }
+
+        @keyframes shine {
+            0% { transform: translate(-50%, -50%) rotate(45deg); }
+            100% { transform: translate(150%, 150%) rotate(45deg); }
+        }
+
+        input {
+            background: transparent;
+            border: 2px solid var(--neon-blue);
+            color: var(--neon-red);
+            padding: 15px;
+            margin: 10px;
+            width: 300px;
+            font-size: 1.2em;
+            text-transform: uppercase;
+            text-shadow: 0 0 10px var(--neon-red);
+        }
+
+        button {
+            background: #000;
+            border: 2px solid var(--neon-red);
+            color: var(--neon-red);
+            padding: 15px 30px;
+            margin: 20px 10px;
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+            transition: 0.3s;
+            font-size: 1.1em;
+        }
+
+        button:hover {
+            background: var(--neon-red);
+            color: #000;
+            box-shadow: 0 0 40px var(--neon-red);
+        }
+
+        #result {
+            padding: 30px;
+            margin-top: 40px;
+            border: 3px dashed var(--neon-blue);
+            position: relative;
+            background: rgba(0, 0, 0, 0.7);
+        }
+
+        .dice-container {
+            position: fixed;
+            right: 50px;
+            bottom: 50px;
+            animation: float 3s ease-in-out infinite;
+        }
+
+        @keyframes float {
+            0% { transform: translateY(0px); }
+            50% { transform: translateY(-20px); }
+            100% { transform: translateY(0px); }
+        }
+
+        .prediction-result {
+            font-size: 4em;
+            text-align: center;
+            text-shadow: 0 0 30px var(--neon-red);
+            animation: pulse 1s infinite;
+        }
+
+        @keyframes pulse {
+            0% { opacity: 0.5; }
+            50% { opacity: 1; }
+            100% { opacity: 0.5; }
+        }
+
+        .warning {
+            color: var(--neon-blue);
+            text-align: center;
+            animation: blink 0.5s step-end infinite;
+        }
+
+        @keyframes blink {
+            50% { opacity: 0; }
+        }
+    </style>
+</head>
+<body>
+    <div class="cyber-overlay"></div>
+
+    <div class="container">
+        <div class="title-box">
+            <h1>SUNWIN</h1>
+            <h2>Phiên bản v1.0</h2>
+            <div class="warning">⚠️ KHÔNG CÓ NÃO THÌ ĐỪNG SÀI ⚠️</div>
+        </div>
+
+        <div style="text-align: center;">
+            <input type="text" id="history" placeholder="NHẬP CHUỖI KẾT QUẢ (VD: TXTXXT)">
+            <input type="number" id="capital" placeholder="SỐ VỐN (VNĐ)">
+            <button onclick="startPrediction()">
+                [ KÍCH HOẠT TRÍ TUỆ AI ]
+            </button>
+        </div>
+
+        <div id="result">
+            <div id="output">
+                <div class="prediction-result">⚡</div>
+                <div id="prediction-text"></div>
+            </div>
+        </div>
+    </div>
+
+    <div class="dice-container">
+        🎲🎲🎲<br>
+        🎲🎲🎲
+    </div>
+
+    <script>
+const patterns = [
+    "XXXXX|T|98|Cầu X vũ trụ",
+    "TTTTT|X|99|Cầu T thiên địa",
+    "XTXTX|X|83|Cầu kẻ sọc đen",
+    "TXTXT|T|85|Cầu kẻ sọc trắng",
+    "XXXTT|T|88|Cầu đầu voi đuôi chuột",
+    "TTTXX|X|91|Cầu cổ tích ngược",
+    "XXTXX|T|89|Cầu mắt thần",
+    "TTXTX|X|87|Cầu quỷ dị đêm",
+    "XTTTX|T|84|Cầu sao băng",
+    "TXTTT|X|86|Cầu mưa lũ",
+    "XTXXX|T|90|Cầu khủng long húc",
+    "TXXTT|X|82|Cầu thác nước",
+    "XTTXT|T|92|Cầu đuôi bò cạp",
+    "TXXTX|X|81|Cầu vẹt đỏ",
+    "XTXTT|X|79|Cầu chó săn mồi",
+    "TXTXX|T|93|Cầu hồng hạc",
+    "XXTTT|T|94|Cầu đại bàng săn",
+    "TTXTT|X|95|Cầu rắn hổ mang",
+    "XTTXX|T|96|Cầu cá heo nhảy",
+    "TXTTX|T|97|Cầu bướm vũ điệu",
+    "XXXXT|T|98|Cầu hổ xuống núi",
+    "TTTXT|X|99|Cầu mãnh hổ ẩn cư",
+    "XXTXT|T|85|Cầu én bão",
+    "TXTXT|X|84|Cầu thiên nga đen",
+    "XTTTT|X|83|Cầu chuột túi nhảy",
+    "TXTTT|T|88|Cầu gấu trúc ngủ",
+    "XTXXT|T|89|Cầu rùa thần",
+    "TXTXX|T|90|Cầu núi lửa phun",
+    "XTTTX|X|82|Cầu địa chấn",
+    "XXTXT|T|91|Cầu bão mắt ngỗng",
+    "TXTTX|X|87|Cầu sóng thần",
+    "XTXXT|T|93|Cầu cầu vồng đêm",
+    "TXXTX|X|86|Cầu cực quang",
+    "XXTTX|T|95|Cầu sao đổi ngôi",
+    "TTXTX|X|94|Cầu mây đen vần vũ",
+    "XTTXT|T|92|Cầu nắng đổ lửa",
+    "TXTXT|X|81|Cầu sương mù",
+    "XXXTX|T|96|Cầu trống đồng",
+    "TTTXT|X|97|Cầu nón lá",
+    "XTXTT|X|80|Cầu áo dài cách tân",
+    "TXTXX|T|98|Cầu lân sư rồng",
+    "XXTTX|T|99|Cầu tranh Đông Hồ",
+    "TTXTT|X|95|Cầu bth",
+    "XTTXX|T|94|Cầu hát xoan",
+    "TXTTX|X|93|Cầu quan họ",
+    "XXXXT|T|92|Cầu chùa Một Cột",
+    "TTTXX|X|91|Cầu nhã nhạc cung đình",
+    "XXTXT|T|90|Cầu gốm Chu Đậu",
+    "TXTXT|X|89|Cầu ca trù",
+    "XTTTX|T|88|Cầu hội lim"
+];
+
+        function fakeLoading() {
+            const output = document.getElementById('output');
+            const texts = [
+                "Đang phân tích Big Data...",
+                "Quét mẫu cầu...",
+                "Kết nối server HackVN...",
+                "Giải mã thuật toán AI...",
+                "Tính toán xác suất đa biến...",
+                "Kích hoạt module dự đoán..."
+            ];
+
+            let count = 0;
+            const loader = setInterval(() => {
+                output.innerHTML = `
+                    <div style="color: #00f3ff">${texts[count]} 
+                    <span style="color: #ff073a">[${Math.floor(Math.random()*100)}%]</span></div>
+                    ${output.innerHTML}
+                `;
+                count = (count + 1) % texts.length;
+                if(count === 0) clearInterval(loader);
+            }, 500);
+        }
+
+        function calculatePrediction(history) {
+            // Advanced fake prediction logic
+            const last3 = history.slice(-3);
+            const tCount = (last3.match(/T/g) || []).length;
+            const xCount = (last3.match(/X/g) || []).length;
+            
+            if(tCount === xCount) {
+                return Math.random() > 0.5 ? 'T' : 'X';
+            }
+            
+            const diff = Math.abs(tCount - xCount);
+            const bias = tCount > xCount ? 'X' : 'T';
+            return Math.random() > (0.6 - diff*0.1) ? bias : (bias === 'T' ? 'X' : 'T');
+        }
+
+        function startPrediction() {
+            const history = document.getElementById('history').value.toUpperCase();
+            const capital = parseInt(document.getElementById('capital').value) || 0;
+
+            fakeLoading();
+
+            setTimeout(() => {
+                let prediction;
+                let rate = Math.floor(Math.random()*20 + 75);
+                let foundPattern = patterns.find(p => history.endsWith(p.split('|')[0]));
+
+                if(foundPattern) {
+                    const [_, res, r, desc] = foundPattern.split('|');
+                    prediction = res;
+                    rate = r;
+                } else {
+                    prediction = calculatePrediction(history);
+                    rate = rate - Math.random()*15;
+                }
+
+                const betAmount = capital * (rate/100) * 0.3;
+                const resultText = `
+                    <div class="prediction-result">${prediction === 'T' ? '🟢 TÀI' : '🔴 XỈU'}</div>
+                    <div style="font-size: 1.5em">
+                        📈 Độ chính xác: ${rate}%<br>
+                        💰 Khuyến nghị đặt: ${Math.round(betAmount).toLocaleString()} VNĐ<br>
+                        🎯 Chiến thuật: ${foundPattern ? foundPattern.split('|')[3] : 'Phát hiện cầu mới'}
+                    </div>
+                    <div style="margin-top:20px; color:#00f3ff">
+                        ${rate > 85 ? '✅ QUẢN LÝ VỐN & CHỐT LỜI NGAY' : 
+                         rate > 75 ? '⚡ TẤN CÔNG 2 LƯỢT' : '⚠️ THEO DÕI THÊM 3 PHIÊN'}
+                    </div>
+                `;
+
+                document.getElementById('output').innerHTML = resultText;
+                document.getElementById('prediction-text').innerHTML = `
+                    <div style="text-align: center; margin-top: 20px;">
+                        <button onclick="startPrediction()" style="font-size: 1.2em">
+                            [ CHẠY LẠI THUẬT TOÁN VIP ]
+                        </button>
+                    </div>
+                `;
+            }, 3000);
+        }
+    </script>
+</body>
+</html>
